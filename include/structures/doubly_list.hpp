@@ -1,240 +1,292 @@
 #pragma once
 #include <iostream>
 #include <stdexcept>
-#include <string>
 #include <vector>
+
+namespace structures {
 
 template <typename T>
 class DoublyList {
-   private:
+public:
     struct Node {
         T data;
-        Node* pNext;
-        Node* pPrev;
-
-        Node(const T& value, Node* nextNode = nullptr, Node* prevNode = nullptr)
-            : data(value), pNext(nextNode), pPrev(prevNode) {}
+        Node* next;
+        Node* prev;
+        Node(const T& val, Node* n = nullptr, Node* p = nullptr)
+            : data(val), next(n), prev(p) {}
     };
 
-    Node* m_head;
-    Node* m_tail;
+private:
+    Node* head;
+    Node* tail;
     size_t m_size;
 
-    inline static const std::string ERROR_OUT_OF_BOUNDS = "Index out of bounds";
-    inline static const std::string ERROR_NOT_FOUND = "Value not found in list";
-    Node* getNode(size_t index) const {
-        Node* current;
-        if (index < m_size / 2) {
-            current = m_head;
-            for (size_t i = 0; i < index; ++i) {
-                current = current->pNext;
-            }
-        } else {
-            current = m_tail;
-            for (size_t i = m_size - 1; i > index; --i) {
-                current = current->pPrev;
-            }
-        }
-        return current;
-    }
-    Node* getNode(const T& value) const {
-        Node* current = m_head;
-        while (current != nullptr) {
-            if (current->data == value) {
-                return current;
-            }
-            current = current->pNext;
+    Node* getNode(const T& target) const {
+        Node* curr = head;
+        while (curr != nullptr) {
+            if (curr->data == target) return curr;
+            curr = curr->next;
         }
         return nullptr;
     }
-   public:
-    DoublyList() : m_head(nullptr), m_tail(nullptr), m_size(0) {}
-    ~DoublyList() { clear(); }
+
+public:
+    DoublyList() : head(nullptr), tail(nullptr), m_size(0) {}
+
+    ~DoublyList() {
+        clear();
+    }
+
+    DoublyList(const DoublyList& other) : head(nullptr), tail(nullptr), m_size(0) {
+        Node* curr = other.head;
+        while (curr != nullptr) {
+            push_back(curr->data);
+            curr = curr->next;
+        }
+    }
+
+    DoublyList& operator=(const DoublyList& other) {
+        if (this != &other) {
+            clear();
+            Node* curr = other.head;
+            while (curr != nullptr) {
+                push_back(curr->data);
+                curr = curr->next;
+            }
+        }
+        return *this;
+    }
+
     size_t size() const { return m_size; }
-    bool empty() const { return m_head == nullptr; }
-    void clear() {
-        while (m_head != nullptr) {
-            Node* temp = m_head;
-            m_head = m_head->pNext;
-            delete temp;
-        }
-        m_tail = nullptr;
-        m_size = 0;
-    }
-    void print() const {
-        if (empty()) {
-            std::cout << "[]" << std::endl;
-            return;
-        }
-        std::cout << "[";
-        Node* current = m_head;
-        while (current != nullptr) {
-            std::cout << current->data;
-            if (current->pNext != nullptr) std::cout << " <=> ";
-            current = current->pNext;
-        }
-        std::cout << "]" << std::endl;
-    }
-    T& operator[](size_t index) {
-        if (index >= m_size) {
-            throw std::out_of_range(ERROR_OUT_OF_BOUNDS);
-        }
-        return getNode(index)->data;
-    }
-    const T& operator[](size_t index) const {
-        if (index >= m_size) {
-            throw std::out_of_range(ERROR_OUT_OF_BOUNDS);
-        }
-        return getNode(index)->data;
-    }
+    bool empty() const { return head == nullptr; }
+
+    Node* get_head() const { return head; }
+    Node* get_tail() const { return tail; }
+
     void push_front(const T& value) {
-        Node* newNode = new Node(value, m_head, nullptr);
+        Node* newNode = new Node(value, head, nullptr);
         if (empty()) {
-            m_head = m_tail = newNode;
+            head = tail = newNode;
         } else {
-            m_head->pPrev = newNode;
-            m_head = newNode;
+            head->prev = newNode;
+            head = newNode;
         }
         m_size++;
     }
+
     void push_back(const T& value) {
-        Node* newNode = new Node(value, nullptr, m_tail);
+        Node* newNode = new Node(value, nullptr, tail);
         if (empty()) {
-            m_head = m_tail = newNode;
+            head = tail = newNode;
         } else {
-            m_tail->pNext = newNode;
-            m_tail = newNode;
+            tail->next = newNode;
+            tail = newNode;
         }
         m_size++;
     }
-    void insert_after(const T& target_value, const T& value) {
-        Node* current = getNode(target_value);
-        if (current == nullptr) {
-            throw std::runtime_error(ERROR_NOT_FOUND);
+
+    void pop_front() {
+        if (empty()) {
+            throw std::runtime_error("DoublyList is empty");
         }
-        if (current == m_tail) {
+        Node* toDelete = head;
+        head = head->next;
+        if (head == nullptr) {
+            tail = nullptr;
+        } else {
+            head->prev = nullptr;
+        }
+        delete toDelete;
+        m_size--;
+    }
+
+    void pop_back() {
+        if (empty()) {
+            throw std::runtime_error("DoublyList is empty");
+        }
+        Node* toDelete = tail;
+        tail = tail->prev;
+        if (tail == nullptr) {
+            head = nullptr;
+        } else {
+            tail->next = nullptr;
+        }
+        delete toDelete;
+        m_size--;
+    }
+
+    // Вставка после target
+    void insert_after(const T& target, const T& value) {
+        Node* targetNode = getNode(target);
+        if (targetNode == nullptr) {
+            throw std::runtime_error("Target element not found");
+        }
+        if (targetNode == tail) {
             push_back(value);
             return;
         }
-        Node* newNode = new Node(value, current->pNext, current);
-        current->pNext->pPrev = newNode;
-        current->pNext = newNode;
+        Node* newNode = new Node(value, targetNode->next, targetNode);
+        targetNode->next->prev = newNode;
+        targetNode->next = newNode;
         m_size++;
     }
-    void insert_before(const T& target_value, const T& value) {
-        Node* current = getNode(target_value);
-        if (current == nullptr) {
-            throw std::runtime_error(ERROR_NOT_FOUND);
+
+    // Вставка до target
+    void insert_before(const T& target, const T& value) {
+        Node* targetNode = getNode(target);
+        if (targetNode == nullptr) {
+            throw std::runtime_error("Target element not found");
         }
-        if (current == m_head) {
+        if (targetNode == head) {
             push_front(value);
             return;
         }
-        Node* newNode = new Node(value, current, current->pPrev);
-        current->pPrev->pNext = newNode;
-        current->pPrev = newNode;
+        Node* newNode = new Node(value, targetNode, targetNode->prev);
+        targetNode->prev->next = newNode;
+        targetNode->prev = newNode;
         m_size++;
     }
-    void pop_front() {
-        if (empty()) return;
-        Node* temp = m_head;
-        m_head = m_head->pNext;
-        if (m_head == nullptr) {
-            m_tail = nullptr;
-        } else {
-            m_head->pPrev = nullptr;
+
+    // Удаление после target
+    void remove_after(const T& target) {
+        Node* targetNode = getNode(target);
+        if (targetNode == nullptr) {
+            throw std::runtime_error("Target element not found");
         }
-        delete temp;
-        m_size--;
-    }
-    void pop_back() {
-        if (empty()) return;
-        if (m_head == m_tail) {
-            delete m_head;
-            m_head = m_tail = nullptr;
-            m_size = 0;
-            return;
+        if (targetNode == tail || targetNode->next == nullptr) {
+            throw std::runtime_error("No element exists after target");
         }
-        Node* temp = m_tail;
-        m_tail = m_tail->pPrev;
-        m_tail->pNext = nullptr;
-        delete temp;
-        m_size--;
-    }
-    void remove_after(const T& target_value) {
-        Node* current = getNode(target_value);
-        if (current == nullptr) {
-            throw std::runtime_error(ERROR_NOT_FOUND);
-        }
-        if (current == m_tail || current->pNext == nullptr) {
-            throw std::out_of_range("No element exists after target value");
-        }
-        Node* toDelete = current->pNext;
-        current->pNext = toDelete->pNext;
-        if (toDelete == m_tail) {
-            m_tail = current;
-        } else {
-            toDelete->pNext->pPrev = current;
-        }
-        delete toDelete;
-        m_size--;
-    }
-    void remove_before(const T& target_value) {
-        Node* current = getNode(target_value);
-        if (current == nullptr) {
-            throw std::runtime_error(ERROR_NOT_FOUND);
-        }
-        if (current == m_head || current->pPrev == nullptr) {
-            throw std::out_of_range("No element exists before target value");
-        }
-        Node* toDelete = current->pPrev;
-        if (toDelete == m_head) {
-            pop_front();
-            return;
-        }
-        toDelete->pPrev->pNext = current;
-        current->pPrev = toDelete->pPrev;
-        delete toDelete;
-        m_size--;
-    }
-    size_t find(const T& value) const {
-        Node* current = m_head;
-        size_t index = 0;
-        while (current != nullptr) {
-            if (current->data == value) {
-                return index;
-            }
-            current = current->pNext;
-            index++;
-        }
-        return static_cast<size_t>(-1);
-    }
-    bool remove_by_value(const T& value) {
-        Node* toDelete = getNode(value);
-        if (toDelete == nullptr) {
-            return false;
-        }
-        if (toDelete == m_head) {
-            pop_front();
-            return true;
-        }
-        if (toDelete == m_tail) {
+        if (targetNode->next == tail) {
             pop_back();
-            return true;
+            return;
         }
-        toDelete->pPrev->pNext = toDelete->pNext;
-        toDelete->pNext->pPrev = toDelete->pPrev;
+        Node* toDelete = targetNode->next;
+        targetNode->next = toDelete->next;
+        toDelete->next->prev = targetNode;
         delete toDelete;
         m_size--;
-        return true;
     }
+
+    // Удаление до target
+    void remove_before(const T& target) {
+        Node* targetNode = getNode(target);
+        if (targetNode == nullptr) {
+            throw std::runtime_error("Target element not found");
+        }
+        if (targetNode == head || targetNode->prev == nullptr) {
+            throw std::runtime_error("No element exists before target");
+        }
+        if (targetNode->prev == head) {
+            pop_front();
+            return;
+        }
+        Node* toDelete = targetNode->prev;
+        targetNode->prev = toDelete->prev;
+        toDelete->prev->next = targetNode;
+        delete toDelete;
+        m_size--;
+    }
+
+    // Удаление элемента по значению
+    void remove_by_value(const T& target) {
+        Node* targetNode = getNode(target);
+        if (targetNode == nullptr) {
+            throw std::runtime_error("Target element not found");
+        }
+        if (targetNode == head) {
+            pop_front();
+            return;
+        }
+        if (targetNode == tail) {
+            pop_back();
+            return;
+        }
+        targetNode->prev->next = targetNode->next;
+        targetNode->next->prev = targetNode->prev;
+        delete targetNode;
+        m_size--;
+    }
+
+    // Удаление конкретного указателя на узел за O(1) (для LRU кэша)
+    void erase_node(Node* node) {
+        if (node == nullptr) return;
+        if (node == head) {
+            pop_front();
+            return;
+        }
+        if (node == tail) {
+            pop_back();
+            return;
+        }
+        node->prev->next = node->next;
+        node->next->prev = node->prev;
+        delete node;
+        m_size--;
+    }
+
+    T& front() {
+        if (empty()) throw std::runtime_error("DoublyList is empty");
+        return head->data;
+    }
+
+    const T& front() const {
+        if (empty()) throw std::runtime_error("DoublyList is empty");
+        return head->data;
+    }
+
+    T& back() {
+        if (empty()) throw std::runtime_error("DoublyList is empty");
+        return tail->data;
+    }
+
+    const T& back() const {
+        if (empty()) throw std::runtime_error("DoublyList is empty");
+        return tail->data;
+    }
+
+    T& at(size_t index) {
+        if (index >= m_size) throw std::runtime_error("Index out of bounds");
+        if (index < m_size / 2) {
+            Node* curr = head;
+            for (size_t i = 0; i < index; ++i) curr = curr->next;
+            return curr->data;
+        } else {
+            Node* curr = tail;
+            for (size_t i = m_size - 1; i > index; --i) curr = curr->prev;
+            return curr->data;
+        }
+    }
+
+    int find(const T& target) const {
+        Node* curr = head;
+        int idx = 0;
+        while (curr != nullptr) {
+            if (curr->data == target) return idx;
+            curr = curr->next;
+            idx++;
+        }
+        return -1;
+    }
+
+    void clear() {
+        while (head != nullptr) {
+            Node* temp = head;
+            head = head->next;
+            delete temp;
+        }
+        tail = nullptr;
+        m_size = 0;
+    }
+
     std::vector<T> to_vector() const {
         std::vector<T> res;
-        Node* current = m_head;
-        while (current != nullptr) {
-            res.push_back(current->data);
-            current = current->pNext;
+        Node* curr = head;
+        while (curr != nullptr) {
+            res.push_back(curr->data);
+            curr = curr->next;
         }
         return res;
     }
 };
+
+} // namespace structures

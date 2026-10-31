@@ -1,39 +1,50 @@
 #pragma once
 #include <stdexcept>
-#include <vector>
+#include "array.hpp"
 
-#include "forward_list.hpp"
+namespace structures {
 
 template <typename T>
 class Stack {
-   private:
-    ForwardList<T> m_list;  // список - хранилище стека
+private:
+    DynamicArray<T> data;
 
-   public:
-    Stack() = default;
-    ~Stack() { clear(); }
-    void clear() { m_list.clear(); }
-    void push(const T& value) { m_list.push_front(value); }
-    void pop() {
-        if (empty()) {
-            throw std::underflow_error("Stack is empty! Cannot pop.");
-        }
-        m_list.pop_front();
+public:
+    Stack(size_t initial_capacity = 4) : data(initial_capacity) {}
+
+    bool empty() const { return data.empty(); }
+    size_t size() const { return data.size(); }
+
+    void push(const T& value) {
+        data.push_back(value);
     }
+
+    T pop() {
+        if (empty()) {
+            throw std::runtime_error("Stack is empty");
+        }
+        T topVal = data[data.size() - 1];
+        data.remove_at(data.size() - 1);
+        return topVal;
+    }
+
     T& top() {
         if (empty()) {
-            throw std::underflow_error("Stack is empty! Cannot read top.");
+            throw std::runtime_error("Stack is empty");
         }
-        return m_list[0];
+        return data[data.size() - 1];
     }
+
     const T& top() const {
         if (empty()) {
-            throw std::underflow_error("Stack is empty! Cannot read top.");
+            throw std::runtime_error("Stack is empty");
         }
-        return m_list[0];
+        return data[data.size() - 1];
     }
-    bool empty() const { return m_list.empty(); }
-    size_t size() const { return m_list.size(); }
-    void print() const { m_list.print(); }
-    std::vector<T> to_vector() const { return m_list.to_vector(); }
+
+    void clear() {
+        data.clear();
+    }
 };
+
+} // namespace structures
