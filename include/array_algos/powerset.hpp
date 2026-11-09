@@ -1,17 +1,19 @@
 #pragma once
 #include <string>
+
 #include "../structures/array.hpp"
 
 namespace algos {
 
 class SubarrayGenerator {
-public:
+   public:
     // Генерация всех подмножеств для массива произвольного типа
     template <typename T>
-    static structures::DynamicArray<structures::DynamicArray<T>> generate_subsets(const structures::DynamicArray<T>& arr) {
+    static structures::DynamicArray<structures::DynamicArray<T>>
+    generate_subsets(const structures::DynamicArray<T>& arr) {
         structures::DynamicArray<structures::DynamicArray<T>> result;
         size_t n = arr.size();
-        
+
         unsigned long long total_subsets = 1ULL << n;
 
         for (unsigned long long mask = 0; mask < total_subsets; ++mask) {
@@ -29,4 +31,4 @@ public:
     }
 };
 
-} // namespace algos
+}  // namespace algos

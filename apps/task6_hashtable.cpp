@@ -1,84 +1,90 @@
+#include <chrono>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <iomanip>
+
 #include "hashtable/open_addressing_table.hpp"
 
-// Метод свертки
 void demo_folding_example() {
-    std::cout << "--- Метод свертки (Folding) ---\n";
+    std::cout << "Метод свертки (Folding)\n";
     std::string num_key = "523456795";
-    // Разбиение на 3 блока по 3 цифры
     int p1 = 523, p2 = 456, p3 = 795;
-    int sum = p1 + p2 + p3;
     std::cout << "Пример ключа: " << num_key << "\n";
-    std::cout << "Свертка: " << p1 << " + " << p2 << " + " << p3 << " = " << sum << "\n\n";
+    std::cout << "Свертка: " << p1 << " + " << p2 << " + " << p3 << " = "
+              << (p1 + p2 + p3) << "\n\n";
 }
 
 int main() {
-    std::cout << "=== Задание 6. Хеш-таблица (Вариант 1) ===\n\n";
+    std::cout << "=== Задание 6. Хеш-таблица ===\n\n";
 
-    // Поясняющий пример метода свертки
     demo_folding_example();
 
-    // Сравнение методов разрешения коллизий
-    std::cout << "--- Сравнение методов (число проб при вставке) ---\n";
-
-    std::vector<std::string> keys = {
-        "apple", "application", "apply", "banana", "band",
-        "cat", "caterpillar", "dog", "door", "forest"
-    };
-
-    size_t initial_cap = 13;
-    hashtable::OpenAddressingTable<int> linear_table(initial_cap, hashtable::CollisionResolution::LINEAR);
-    hashtable::OpenAddressingTable<int> double_table(initial_cap, hashtable::CollisionResolution::DOUBLE_HASHING);
-
-    size_t total_linear = 0;
-    size_t total_double = 0;
-
-    std::cout << std::left << std::setw(16) << "Ключ" 
-              << std::setw(18) << "Линейное (проб)" 
-              << "Двойное (проб)\n";
-    std::cout << std::string(48, '-') << "\n";
-
-    for (size_t i = 0; i < keys.size(); ++i) {
-        size_t p_lin = linear_table.insert(keys[i], static_cast<int>(i + 1));
-        size_t p_dbl = double_table.insert(keys[i], static_cast<int>(i + 1));
-
-        total_linear += p_lin;
-        total_double += p_dbl;
-
-        std::cout << std::left << std::setw(16) << keys[i] 
-                  << std::setw(18) << p_lin 
-                  << p_dbl << "\n";
+    const int N = 100;
+    std::vector<std::string> keys;
+    keys.reserve(N);
+    for (int i = 0; i < N; ++i) {
+        keys.push_back("user_key_" + std::to_string(i * 17 + 3));
     }
 
-    std::cout << std::string(48, '-') << "\n";
-    std::cout << std::left << std::setw(16) << "ИТОГО шагов:" 
-              << std::setw(18) << total_linear 
-              << total_double << "\n\n";
+    std::cout << "Эмпирический анализ на " << N << " элементах\n";
 
-    // Проверка основных операций
-    std::cout << "--- Проверка операций (Линейное пробирование) ---\n";
-    hashtable::OpenAddressingTable<std::string> table(11, hashtable::CollisionResolution::LINEAR);
+    hashtable::OpenAddressingTable<int> linear_table(
+        101, hashtable::CollisionResolution::LINEAR);
+    hashtable::OpenAddressingTable<int> double_table(
+        101, hashtable::CollisionResolution::DOUBLE_HASHING);
 
-    table.insert("user1", "Alice");
-    table.insert("user2", "Bob");
-    std::cout << "Добавлены: user1 -> Alice, user2 -> Bob\n";
+    size_t linear_probes = 0;
+    size_t double_probes = 0;
 
-    std::string val;
-    if (table.find("user1", val)) {
-        std::cout << "Поиск 'user1': найдено (" << val << ")\n";
+    auto start_lin = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < N; ++i) {
+        linear_probes += linear_table.insert(keys[i], i);
+    }
+    for (int i = 0; i < N; ++i) {
+        int val;
+        linear_table.find(keys[i], val);
+    }
+    auto end_lin = std::chrono::high_resolution_clock::now();
+    double time_lin_ms =
+        std::chrono::duration<double, std::milli>(end_lin - start_lin).count();
+
+    auto start_dbl = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < N; ++i) {
+        double_probes += double_table.insert(keys[i], i);
+    }
+    for (int i = 0; i < N; ++i) {
+        int val;
+        double_table.find(keys[i], val);
+    }
+    auto end_dbl = std::chrono::high_resolution_clock::now();
+    double time_dbl_ms =
+        std::chrono::duration<double, std::milli>(end_dbl - start_dbl).count();
+
+    std::cout << "Метод\t\t\tШагов (проб)\tВремя (мс)\n";
+    std::cout << "Линейное пробирование:\t" << linear_probes << "\t\t"
+              << time_lin_ms << " мс\n";
+    std::cout << "Двойное хеширование:\t" << double_probes << "\t\t"
+              << time_dbl_ms << " мс\n";
+    std::cout << std::endl;
+
+    std::cout << "Проверка операций (find / remove)\n";
+    std::string test_key = "user_key_3";
+    int found_val = -1;
+
+    if (linear_table.find(test_key, found_val)) {
+        std::cout << "Поиск '" << test_key
+                  << "': найдено (значение = " << found_val << ")\n";
     }
 
-    table.remove("user1");
-    std::cout << "Удаление 'user1': выполнено\n";
+    linear_table.remove(test_key);
+    std::cout << "Удаление '" << test_key << "': выполнено\n";
 
-    if (!table.find("user1", val)) {
-        std::cout << "Поиск 'user1': не найден (OK)\n";
+    if (!linear_table.find(test_key, found_val)) {
+        std::cout << "Повторный поиск '" << test_key << "': не найден (OK)\n\n";
     }
 
-    std::cout << "\nВывод: Двойное хеширование минимизирует кластеризацию и требует меньше шагов.\n";
+    std::cout << "Вывод: Двойное хеширование минимизирует первичную "
+                 "кластеризацию и сокращает число проб.\n";
 
     return 0;
 }

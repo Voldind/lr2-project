@@ -1,12 +1,14 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include "structures/bst.hpp"
+
 #include "structures/array.hpp"
+#include "structures/bst.hpp"
 #include "tree/right_view.hpp"
 
 int main() {
-    std::cout << "=== Задание 5. Правый край бинарного дерева (Вариант 1) ===\n";
+    std::cout
+        << "=== Задание 5. Правый край бинарного дерева (Вариант 1) ===\n";
     std::cout << "Введите числа для построения дерева поиска через пробел:\n";
 
     std::string line;
@@ -22,7 +24,8 @@ int main() {
         bst.insert(val);
     }
 
-    structures::DynamicArray<int> right_view = algos::TreeRightView<int>::get_right_view(bst);
+    structures::DynamicArray<int> right_view =
+        algos::TreeRightView<int>::get_right_view(bst);
 
     std::cout << "\nРезультат: ";
     for (size_t i = 0; i < right_view.size(); ++i) {

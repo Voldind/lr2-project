@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+
 #include "array_algos/powerset.hpp"
 #include "structures/array.hpp"
 
@@ -22,12 +23,13 @@ int main() {
     }
 
     if (arr.size() > 20) {
-        std::cout << "Предупреждение: для N > 20 размер булеана превысит миллион элементов!\n";
+        std::cout << "Предупреждение: для N > 20 размер булеана превысит "
+                     "миллион элементов!\n";
     }
 
     // Генерация подмножеств
-    structures::DynamicArray<structures::DynamicArray<std::string>> all_subsets = 
-        algos::SubarrayGenerator::generate_subsets(arr);
+    structures::DynamicArray<structures::DynamicArray<std::string>>
+        all_subsets = algos::SubarrayGenerator::generate_subsets(arr);
 
     // Вывод
     std::cout << "\nВсего подмножеств: " << all_subsets.size() << "\nВывод: [";

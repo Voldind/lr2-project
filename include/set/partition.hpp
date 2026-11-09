@@ -1,13 +1,14 @@
 #pragma once
 #include <iostream>
-#include <string>
+#include <vector>
+
 #include "../structures/array.hpp"
+#include "set.hpp"
 
 namespace algos {
 
 class PartitionSolver {
-private:
-    // Вспомогательная сортировка по убыванию
+   private:
     static void sort_descending(structures::DynamicArray<int>& arr) {
         for (size_t i = 0; i < arr.size(); ++i) {
             for (size_t j = i + 1; j < arr.size(); ++j) {
@@ -20,12 +21,10 @@ private:
         }
     }
 
-    // Рекурсивный перебор
-    static bool backtrack(size_t idx, 
-                          const structures::DynamicArray<int>& nums, 
-                          structures::DynamicArray<structures::DynamicArray<int>>& subsets,
-                          structures::DynamicArray<int>& subset_sums, 
-                          int target_sum) {
+    static bool backtrack(
+        size_t idx, const structures::DynamicArray<int>& nums,
+        structures::DynamicArray<structures::Set<int>>& subsets,
+        structures::DynamicArray<int>& subset_sums, int target_sum) {
         if (idx == nums.size()) {
             return true;
         }
@@ -33,69 +32,57 @@ private:
         int current_val = nums[idx];
 
         for (size_t i = 0; i < subsets.size(); ++i) {
-            // Проверка, помещается ли число в i-ю корзину
             if (subset_sums[i] + current_val <= target_sum) {
-                subsets[i].push_back(current_val);
+                subsets[i].add(current_val);
                 subset_sums[i] += current_val;
-
-                if (backtrack(idx + 1, nums, subsets, subset_sums, target_sum)) {
+                if (backtrack(idx + 1, nums, subsets, subset_sums, target_sum))
                     return true;
-                }
-
-                // Откат назад
-                subsets[i].remove_at(subsets[i].size() - 1);
+                subsets[i].remove(current_val);
                 subset_sums[i] -= current_val;
             }
-
-            // Если корзина была пустой и число не подошло,
-            // корзины пропускаются
-            if (subset_sums[i] == 0) {
-                break;
-            }
+            if (subset_sums[i] == 0) break;
         }
 
         return false;
     }
 
-public:
-    // Основной метод разбиения
-    static bool partition(structures::DynamicArray<int>& nums, 
-                          int target_sum, 
-                          structures::DynamicArray<structures::DynamicArray<int>>& result) {
-        if (nums.empty() || target_sum <= 0) {
+   public:
+    static bool partition(
+        const structures::Set<int>& input_set, int target_sum,
+        structures::DynamicArray<structures::Set<int>>& result) {
+        if (input_set.empty() || target_sum <= 0) {
             return false;
         }
 
+        std::vector<int> raw_elements = input_set.to_vector();
+        structures::DynamicArray<int> nums;
         long long total_sum = 0;
-        for (size_t i = 0; i < nums.size(); ++i) {
-            if (nums[i] <= 0) {
-                return false; // По условию числа натуральные
+
+        for (int val : raw_elements) {
+            if (val <= 0 || val > target_sum) {
+                return false;
             }
-            if (nums[i] > target_sum) {
-                return false; // Элемент больше целевой суммы
-            }
-            total_sum += nums[i];
+            nums.push_back(val);
+            total_sum += val;
         }
 
         if (total_sum % target_sum != 0) {
-            return false; // Сумма не кратна целевой сумме
+            return false;
         }
 
-        size_t k = total_sum / target_sum; // Количество подмножеств
+        size_t k = total_sum / target_sum;
 
-        // Сортировка по убыванию для ускорения отсечений
-        structures::DynamicArray<int> sorted_nums = nums;
-        sort_descending(sorted_nums);
+        sort_descending(nums);
 
-        structures::DynamicArray<structures::DynamicArray<int>> subsets;
+        structures::DynamicArray<structures::Set<int>> subsets;
         structures::DynamicArray<int> subset_sums;
 
         for (size_t i = 0; i < k; ++i) {
-            subsets.push_back(structures::DynamicArray<int>());
+            subsets.push_back(structures::Set<int>());
             subset_sums.push_back(0);
         }
 
-        if (backtrack(0, sorted_nums, subsets, subset_sums, target_sum)) {
+        if (backtrack(0, nums, subsets, subset_sums, target_sum)) {
             result = subsets;
             return true;
         }
@@ -104,4 +91,4 @@ public:
     }
 };
 
-} // namespace algos
+}  // namespace algos

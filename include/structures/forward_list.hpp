@@ -7,7 +7,7 @@ namespace structures {
 
 template <typename T>
 class ForwardList {
-private:
+   private:
     struct Node {
         T data;
         Node* next;
@@ -27,15 +27,14 @@ private:
         return nullptr;
     }
 
-public:
+   public:
     ForwardList() : head(nullptr), tail(nullptr), m_size(0) {}
 
-    ~ForwardList() {
-        clear();
-    }
+    ~ForwardList() { clear(); }
 
     // Конструктор копирования
-    ForwardList(const ForwardList& other) : head(nullptr), tail(nullptr), m_size(0) {
+    ForwardList(const ForwardList& other)
+        : head(nullptr), tail(nullptr), m_size(0) {
         Node* curr = other.head;
         while (curr != nullptr) {
             push_back(curr->data);
@@ -169,13 +168,13 @@ public:
             return;
         }
         Node* prevPrev = head;
-        while (prevPrev->next != nullptr && 
-               prevPrev->next->next != nullptr && 
+        while (prevPrev->next != nullptr && prevPrev->next->next != nullptr &&
                prevPrev->next->next->data != target) {
             prevPrev = prevPrev->next;
         }
         if (prevPrev->next == nullptr || prevPrev->next->next == nullptr) {
-            throw std::runtime_error("Target element not found or has no element before it");
+            throw std::runtime_error(
+                "Target element not found or has no element before it");
         }
         Node* toDelete = prevPrev->next;
         prevPrev->next = toDelete->next;
@@ -265,4 +264,4 @@ public:
     }
 };
 
-} // namespace structures
+}  // namespace structures

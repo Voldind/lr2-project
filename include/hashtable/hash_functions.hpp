@@ -1,7 +1,7 @@
 #pragma once
-#include <string>
 #include <cstddef>
 #include <cstdint>
+#include <string>
 
 namespace hashtable {
 
@@ -14,7 +14,8 @@ inline size_t folding_hash(const std::string& key, size_t table_size) {
 
     // Сворачиваем по 2 символа (16 бит на блок)
     while (i + 1 < key.length()) {
-        uint16_t block = (static_cast<uint8_t>(key[i]) << 8) | static_cast<uint8_t>(key[i + 1]);
+        uint16_t block = (static_cast<uint8_t>(key[i]) << 8) |
+                         static_cast<uint8_t>(key[i + 1]);
         sum += block;
         i += 2;
     }
@@ -39,4 +40,4 @@ inline size_t secondary_hash(const std::string& key, size_t table_size) {
     return 1 + (h % (table_size - 1));
 }
 
-} // namespace hashtable
+}  // namespace hashtable

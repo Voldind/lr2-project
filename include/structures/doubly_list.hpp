@@ -7,7 +7,7 @@ namespace structures {
 
 template <typename T>
 class DoublyList {
-public:
+   public:
     struct Node {
         T data;
         Node* next;
@@ -16,7 +16,7 @@ public:
             : data(val), next(n), prev(p) {}
     };
 
-private:
+   private:
     Node* head;
     Node* tail;
     size_t m_size;
@@ -30,14 +30,13 @@ private:
         return nullptr;
     }
 
-public:
+   public:
     DoublyList() : head(nullptr), tail(nullptr), m_size(0) {}
 
-    ~DoublyList() {
-        clear();
-    }
+    ~DoublyList() { clear(); }
 
-    DoublyList(const DoublyList& other) : head(nullptr), tail(nullptr), m_size(0) {
+    DoublyList(const DoublyList& other)
+        : head(nullptr), tail(nullptr), m_size(0) {
         Node* curr = other.head;
         while (curr != nullptr) {
             push_back(curr->data);
@@ -289,4 +288,4 @@ public:
     }
 };
 
-} // namespace structures
+}  // namespace structures

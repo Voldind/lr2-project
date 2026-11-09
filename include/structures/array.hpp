@@ -7,7 +7,7 @@ namespace structures {
 
 template <typename T>
 class DynamicArray {
-private:
+   private:
     T* data;
     size_t m_size;
     size_t m_capacity;
@@ -23,7 +23,7 @@ private:
         m_capacity = new_cap;
     }
 
-public:
+   public:
     DynamicArray(size_t initial_capacity = 4) {
         if (initial_capacity == 0) initial_capacity = 4;
         m_size = 0;
@@ -31,9 +31,7 @@ public:
         data = new T[m_capacity];
     }
 
-    ~DynamicArray() {
-        delete[] data;
-    }
+    ~DynamicArray() { delete[] data; }
 
     DynamicArray(const DynamicArray& other) {
         m_size = other.m_size;
@@ -122,9 +120,7 @@ public:
         return data[index];
     }
 
-    void clear() {
-        m_size = 0;
-    }
+    void clear() { m_size = 0; }
 
     std::vector<T> to_vector() const {
         std::vector<T> res;
@@ -135,4 +131,4 @@ public:
     }
 };
 
-} // namespace structures
+}  // namespace structures

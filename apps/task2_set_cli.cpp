@@ -1,49 +1,59 @@
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <map>
+
 #include "set/set.hpp"
 
 // Загрузка всех множеств из файла
-void load_file(const std::string& path, std::map<std::string, structures::Set>& sets) {
+void load_file(const std::string& path,
+               std::map<std::string, structures::Set<std::string>>& sets) {
     std::ifstream in(path);
-    if (!in.is_open()) return;
+    if (!in.is_open()) {
+        return;
+    }
 
     std::string line;
     while (std::getline(in, line)) {
         if (line.empty()) continue;
         std::stringstream ss(line);
         std::string set_name, elem;
-        ss >> set_name;
-        while (ss >> elem) {
-            sets[set_name].add(elem);
+        if (ss >> set_name) {
+            while (ss >> elem) {
+                sets[set_name].add(elem);
+            }
         }
     }
 }
 
 // Сохранение всех множеств в файл
-void save_file(const std::string& path, const std::map<std::string, structures::Set>& sets) {
+bool save_file(
+    const std::string& path,
+    const std::map<std::string, structures::Set<std::string>>& sets) {
     std::ofstream out(path);
     if (!out.is_open()) {
-        std::cerr << "Error: cannot open file for writing: " << path << "\n";
-        return;
+        std::cerr << "-> Error: cannot open file for writing: " << path << "\n";
+        return false;
     }
-    for (const auto& pair : sets) {
-        out << pair.first;
-        std::vector<std::string> elems = pair.second.to_vector();
+
+    for (const auto& [name, set_obj] : sets) {
+        out << name;
+        std::vector<std::string> elems = set_obj.to_vector();
         for (const auto& val : elems) {
             out << " " << val;
         }
         out << "\n";
     }
+    return true;
 }
 
 int main(int argc, char* argv[]) {
-    std::string file_path;
-    std::string query;
+    std::string file_path = "";
+    std::string query = "";
 
+    // Разбор флагов
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
         if (arg == "--file" && i + 1 < argc) {
@@ -54,71 +64,84 @@ int main(int argc, char* argv[]) {
     }
 
     if (query.empty()) {
-        std::cerr << "Usage: ./task2_set_cli --file <path> --query \"<command>\"\n";
+        std::cerr << "Usage: ./task2_set_cli --file <path> --query \"<COMMAND> "
+                     "<set_name> [value]\"\n";
         std::cerr << "Commands:\n";
-        std::cerr << "  SETADD <set_name> <value>\n";
-        std::cerr << "  SETDEL <set_name> <value>\n";
-        std::cerr << "  SET_AT <set_name> <value>\n";
-        std::cerr << "  SETPRINT <set_name>\n";
+        std::cerr
+            << "  SETADD <set_name> <value>   - Добавить элемент в множество\n";
+        std::cerr
+            << "  SETDEL <set_name> <value>   - Удалить элемент из множества\n";
+        std::cerr
+            << "  SET_AT <set_name> <value>   - Проверить наличие элемента\n";
+        std::cerr << "  SETPRINT <set_name>         - Вывести все элементы "
+                     "множества\n";
         return 1;
     }
 
-    std::map<std::string, structures::Set> sets;
+    std::map<std::string, structures::Set<std::string>> sets;
+
     if (!file_path.empty()) {
         load_file(file_path, sets);
     }
 
     std::stringstream ss(query);
     std::string cmd, set_name, val;
-    ss >> cmd >> set_name;
+    ss >> cmd;
 
+    if (!(ss >> set_name)) {
+        std::cerr << "-> Error: missing set name in query\n";
+        return 1;
+    }
+
+    // Обработка команд АТД Множество
     if (cmd == "SETADD") {
         if (!(ss >> val)) {
-            std::cout << "Error: SETADD requires <set_name> and <value>\n";
+            std::cerr << "-> Error: SETADD requires <set_name> and <value>\n";
             return 1;
         }
         bool added = sets[set_name].add(val);
-        if (!file_path.empty()) save_file(file_path, sets);
-        std::cout << (added ? "OK (added)" : "EXISTS") << "\n";
-    } 
-    else if (cmd == "SETDEL") {
+        if (!file_path.empty()) {
+            save_file(file_path, sets);
+        }
+        std::cout << (added ? "-> OK" : "-> FALSE (already exists)") << "\n";
+    } else if (cmd == "SETDEL") {
         if (!(ss >> val)) {
-            std::cout << "Error: SETDEL requires <set_name> and <value>\n";
+            std::cerr << "-> Error: SETDEL requires <set_name> and <value>\n";
             return 1;
         }
         if (sets.find(set_name) == sets.end()) {
-            std::cout << "FALSE (not found)\n";
+            std::cout << "-> FALSE (set not found)\n";
             return 0;
         }
         bool removed = sets[set_name].remove(val);
-        if (!file_path.empty()) save_file(file_path, sets);
-        std::cout << (removed ? "OK (deleted)" : "FALSE (not found)") << "\n";
-    } 
-    else if (cmd == "SET_AT") {
+        if (!file_path.empty()) {
+            save_file(file_path, sets);
+        }
+        std::cout << (removed ? "-> OK" : "-> FALSE (value not found)") << "\n";
+    } else if (cmd == "SET_AT") {
         if (!(ss >> val)) {
-            std::cout << "Error: SET_AT requires <set_name> and <value>\n";
+            std::cerr << "-> Error: SET_AT requires <set_name> and <value>\n";
             return 1;
         }
         if (sets.find(set_name) == sets.end()) {
-            std::cout << "FALSE\n";
+            std::cout << "-> FALSE\n";
             return 0;
         }
-        std::cout << (sets[set_name].contains(val) ? "TRUE" : "FALSE") << "\n";
-    } 
-    else if (cmd == "SETPRINT") {
+        std::cout << (sets[set_name].contains(val) ? "-> TRUE" : "-> FALSE")
+                  << "\n";
+    } else if (cmd == "SETPRINT" || cmd == "PRINT") {
         if (sets.find(set_name) == sets.end() || sets[set_name].empty()) {
-            std::cout << "{}\n";
+            std::cout << "-> {}\n";
             return 0;
         }
-        std::cout << "{ ";
-        auto elems = sets[set_name].to_vector();
-        for (const auto& e : elems) {
-            std::cout << e << " ";
+        std::cout << "-> { ";
+        std::vector<std::string> elems = sets[set_name].to_vector();
+        for (size_t i = 0; i < elems.size(); ++i) {
+            std::cout << elems[i] << (i + 1 < elems.size() ? ", " : " ");
         }
         std::cout << "}\n";
-    } 
-    else {
-        std::cout << "Unknown command: " << cmd << "\n";
+    } else {
+        std::cerr << "-> Error: unknown command: " << cmd << "\n";
         return 1;
     }
 

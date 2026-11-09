@@ -2,24 +2,23 @@
 #include <iostream>
 #include <stdexcept>
 #include <vector>
+
 #include "doubly_list.hpp"
 
 namespace structures {
 
 template <typename T>
 class Queue {
-private:
+   private:
     DoublyList<T> list;
 
-public:
+   public:
     Queue() = default;
 
     bool empty() const { return list.empty(); }
     size_t size() const { return list.size(); }
 
-    void push(const T& value) {
-        list.push_back(value);
-    }
+    void push(const T& value) { list.push_back(value); }
 
     T pop() {
         if (empty()) {
@@ -44,13 +43,9 @@ public:
         return list.front();
     }
 
-    void clear() {
-        list.clear();
-    }
+    void clear() { list.clear(); }
 
-    std::vector<T> to_vector() const {
-        return list.to_vector();
-    }
+    std::vector<T> to_vector() const { return list.to_vector(); }
 };
 
-} // namespace structures
+}  // namespace structures

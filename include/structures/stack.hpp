@@ -1,23 +1,22 @@
 #pragma once
 #include <stdexcept>
+
 #include "array.hpp"
 
 namespace structures {
 
 template <typename T>
 class Stack {
-private:
+   private:
     DynamicArray<T> data;
 
-public:
+   public:
     Stack(size_t initial_capacity = 4) : data(initial_capacity) {}
 
     bool empty() const { return data.empty(); }
     size_t size() const { return data.size(); }
 
-    void push(const T& value) {
-        data.push_back(value);
-    }
+    void push(const T& value) { data.push_back(value); }
 
     T pop() {
         if (empty()) {
@@ -42,9 +41,7 @@ public:
         return data[data.size() - 1];
     }
 
-    void clear() {
-        data.clear();
-    }
+    void clear() { data.clear(); }
 };
 
-} // namespace structures
+}  // namespace structures

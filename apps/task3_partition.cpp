@@ -1,7 +1,10 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
+
 #include "set/partition.hpp"
+#include "set/set.hpp"
 #include "structures/array.hpp"
 
 int main() {
@@ -15,10 +18,10 @@ int main() {
     }
 
     std::stringstream ss(line);
-    structures::DynamicArray<int> nums;
+    structures::Set<int> input_set;
     int val;
     while (ss >> val) {
-        nums.push_back(val);
+        input_set.add(val);  // SETADD
     }
 
     std::cout << "Введите целевую сумму подмножества:\n> ";
@@ -28,19 +31,23 @@ int main() {
         return 1;
     }
 
-    structures::DynamicArray<structures::DynamicArray<int>> result;
+    structures::DynamicArray<structures::Set<int>> result_subsets;
 
-    if (algos::PartitionSolver::partition(nums, target_sum, result)) {
-        std::cout << "\nУспешно разбито на " << result.size() << " подмножеств(а):\n";
-        for (size_t i = 0; i < result.size(); ++i) {
+    if (algos::PartitionSolver::partition(input_set, target_sum,
+                                          result_subsets)) {
+        std::cout << "\nУспешно разбито на " << result_subsets.size()
+                  << " подмножеств(а):\n";
+        for (size_t i = 0; i < result_subsets.size(); ++i) {
             std::cout << "Подмножество " << i + 1 << ": { ";
-            for (size_t j = 0; j < result[i].size(); ++j) {
-                std::cout << result[i][j] << (j + 1 < result[i].size() ? ", " : " ");
+            std::vector<int> elems = result_subsets[i].to_vector();
+            for (size_t j = 0; j < elems.size(); ++j) {
+                std::cout << elems[j] << (j + 1 < elems.size() ? ", " : " ");
             }
             std::cout << "}\n";
         }
     } else {
-        std::cout << "\nОшибка: множество не может быть разбито на подмножества с суммой " 
+        std::cout << "\nОшибка: множество не может быть разбито на "
+                     "подмножества с суммой "
                   << target_sum << "\n";
     }
 

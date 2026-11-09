@@ -2,14 +2,15 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "../structures/doubly_list.hpp"
+
 #include "../structures/array.hpp"
+#include "../structures/doubly_list.hpp"
 #include "../structures/forward_list.hpp"
 
 namespace cache {
 
 class LRUCache {
-public:
+   public:
     struct CacheItem {
         int key;
         int value;
@@ -18,7 +19,7 @@ public:
 
     using ListNode = typename structures::DoublyList<CacheItem>::Node;
 
-private:
+   private:
     struct HashEntry {
         int key;
         ListNode* node;
@@ -29,7 +30,8 @@ private:
     structures::DynamicArray<structures::ForwardList<HashEntry>> m_map;
     size_t m_map_capacity;
 
-    // Двусвязный список для поддержания порядка LRU (голова = свежий, хвост = старый)
+    // Двусвязный список для поддержания порядка LRU (голова = свежий, хвост =
+    // старый)
     structures::DoublyList<CacheItem> m_list;
     size_t m_capacity;
 
@@ -95,7 +97,7 @@ private:
         put_in_map(item.key, m_list.get_head());
     }
 
-public:
+   public:
     explicit LRUCache(size_t cap)
         : m_map_capacity(cap > 0 ? cap * 2 + 1 : 7),
           m_map(cap > 0 ? cap * 2 + 1 : 7),
@@ -147,4 +149,4 @@ public:
     }
 };
 
-} // namespace cache
+}  // namespace cache

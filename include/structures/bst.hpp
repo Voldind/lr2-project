@@ -7,7 +7,7 @@ namespace structures {
 
 template <typename T>
 class BinarySearchTree {
-public:
+   public:
     struct Node {
         T data;
         Node* left;
@@ -15,7 +15,7 @@ public:
         Node(const T& val) : data(val), left(nullptr), right(nullptr) {}
     };
 
-private:
+   private:
     Node* root;
     size_t m_size;
 
@@ -55,24 +55,18 @@ private:
         }
     }
 
-public:
+   public:
     BinarySearchTree() : root(nullptr), m_size(0) {}
 
-    ~BinarySearchTree() {
-        clear();
-    }
+    ~BinarySearchTree() { clear(); }
 
     size_t size() const { return m_size; }
     bool empty() const { return root == nullptr; }
     Node* get_root() const { return root; }
 
-    void insert(const T& value) {
-        root = insertNode(root, value);
-    }
+    void insert(const T& value) { root = insertNode(root, value); }
 
-    bool find(const T& value) const {
-        return findNode(root, value);
-    }
+    bool find(const T& value) const { return findNode(root, value); }
 
     void clear() {
         clearTree(root);
@@ -87,4 +81,4 @@ public:
     }
 };
 
-} // namespace structures
+}  // namespace structures

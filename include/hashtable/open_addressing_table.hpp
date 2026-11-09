@@ -1,37 +1,32 @@
 #pragma once
-#include <string>
-#include <stdexcept>
-#include <vector>
 #include <iostream>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
 #include "../structures/array.hpp"
 #include "hash_functions.hpp"
 
 namespace hashtable {
 
-enum class CollisionResolution {
-    LINEAR,
-    DOUBLE_HASHING
-};
+enum class CollisionResolution { LINEAR, DOUBLE_HASHING };
 
-enum class EntryState {
-    EMPTY,
-    OCCUPIED,
-    DELETED
-};
+enum class EntryState { EMPTY, OCCUPIED, DELETED };
 
 template <typename V>
 class OpenAddressingTable {
-public:
+   public:
     struct Entry {
         std::string key;
         V value;
         EntryState state;
 
         Entry() : key(""), value(V()), state(EntryState::EMPTY) {}
-        Entry(const std::string& k, const V& v) : key(k), value(v), state(EntryState::OCCUPIED) {}
+        Entry(const std::string& k, const V& v)
+            : key(k), value(v), state(EntryState::OCCUPIED) {}
     };
 
-private:
+   private:
     structures::DynamicArray<Entry> m_table;
     size_t m_size;
     size_t m_capacity;
@@ -67,10 +62,14 @@ private:
         }
     }
 
-public:
-    explicit OpenAddressingTable(size_t initial_capacity = 17, 
-                                 CollisionResolution strategy = CollisionResolution::LINEAR)
-        : m_table(initial_capacity), m_size(0), m_capacity(initial_capacity), m_strategy(strategy) {
+   public:
+    explicit OpenAddressingTable(
+        size_t initial_capacity = 17,
+        CollisionResolution strategy = CollisionResolution::LINEAR)
+        : m_table(initial_capacity),
+          m_size(0),
+          m_capacity(initial_capacity),
+          m_strategy(strategy) {
         for (size_t i = 0; i < m_capacity; ++i) {
             m_table.push_back(Entry());
         }
@@ -96,7 +95,7 @@ public:
 
             if (m_table[idx].state == EntryState::OCCUPIED) {
                 if (m_table[idx].key == key) {
-                    m_table[idx].value = value; // Обновляем значение существующего ключа
+                    m_table[idx].value = value;
                     return probes;
                 }
             } else if (m_table[idx].state == EntryState::DELETED) {
@@ -104,8 +103,9 @@ public:
                     first_deleted_idx = static_cast<int>(idx);
                 }
             } else if (m_table[idx].state == EntryState::EMPTY) {
-                // Если ранее встретили DELETED-ячейку — занимаем её
-                size_t insert_idx = (first_deleted_idx != -1) ? static_cast<size_t>(first_deleted_idx) : idx;
+                size_t insert_idx = (first_deleted_idx != -1)
+                                        ? static_cast<size_t>(first_deleted_idx)
+                                        : idx;
                 m_table[insert_idx] = Entry(key, value);
                 m_size++;
                 return probes;
@@ -128,9 +128,10 @@ public:
             size_t idx = get_probe_index(key, i);
 
             if (m_table[idx].state == EntryState::EMPTY) {
-                return false; // Дошли до пустой — элемента точно нет
+                return false;
             }
-            if (m_table[idx].state == EntryState::OCCUPIED && m_table[idx].key == key) {
+            if (m_table[idx].state == EntryState::OCCUPIED &&
+                m_table[idx].key == key) {
                 out_val = m_table[idx].value;
                 return true;
             }
@@ -146,7 +147,8 @@ public:
             if (m_table[idx].state == EntryState::EMPTY) {
                 return false;
             }
-            if (m_table[idx].state == EntryState::OCCUPIED && m_table[idx].key == key) {
+            if (m_table[idx].state == EntryState::OCCUPIED &&
+                m_table[idx].key == key) {
                 m_table[idx].state = EntryState::DELETED;
                 m_table[idx].key = "";
                 m_size--;
@@ -157,11 +159,13 @@ public:
     }
 
     void print_table() const {
-        std::cout << "--- Состояние Хеш-Таблицы (Размер: " << m_size << "/" << m_capacity << ") ---\n";
+        std::cout << "--- Состояние Хеш-Таблицы (Размер: " << m_size << "/"
+                  << m_capacity << ") ---\n";
         for (size_t i = 0; i < m_capacity; ++i) {
             std::cout << "[" << i << "]: ";
             if (m_table[i].state == EntryState::OCCUPIED) {
-                std::cout << "{" << m_table[i].key << ": " << m_table[i].value << "}\n";
+                std::cout << "{" << m_table[i].key << ": " << m_table[i].value
+                          << "}\n";
             } else if (m_table[i].state == EntryState::DELETED) {
                 std::cout << "<DELETED>\n";
             } else {
@@ -171,4 +175,4 @@ public:
     }
 };
 
-} // namespace hashtable
+}  // namespace hashtable
