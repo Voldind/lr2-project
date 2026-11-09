@@ -4,11 +4,11 @@
 #include <iomanip>
 #include "hashtable/open_addressing_table.hpp"
 
-// Демонстрация формулы метода свертки по методичке
+// Метод свертки
 void demo_folding_example() {
     std::cout << "--- Метод свертки (Folding) ---\n";
     std::string num_key = "523456795";
-    // Разбиение на 3 блока по 3 цифры: 523 + 456 + 795 = 1774
+    // Разбиение на 3 блока по 3 цифры
     int p1 = 523, p2 = 456, p3 = 795;
     int sum = p1 + p2 + p3;
     std::cout << "Пример ключа: " << num_key << "\n";
@@ -18,10 +18,10 @@ void demo_folding_example() {
 int main() {
     std::cout << "=== Задание 6. Хеш-таблица (Вариант 1) ===\n\n";
 
-    // 1. Поясняющий пример метода свертки
+    // Поясняющий пример метода свертки
     demo_folding_example();
 
-    // 2. Сравнение методов разрешения коллизий
+    // Сравнение методов разрешения коллизий
     std::cout << "--- Сравнение методов (число проб при вставке) ---\n";
 
     std::vector<std::string> keys = {
@@ -58,7 +58,7 @@ int main() {
               << std::setw(18) << total_linear 
               << total_double << "\n\n";
 
-    // 3. Лаконичная проверка основных операций
+    // Проверка основных операций
     std::cout << "--- Проверка операций (Линейное пробирование) ---\n";
     hashtable::OpenAddressingTable<std::string> table(11, hashtable::CollisionResolution::LINEAR);
 

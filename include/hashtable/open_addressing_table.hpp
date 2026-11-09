@@ -51,7 +51,6 @@ private:
 
     void rehash() {
         size_t old_cap = m_capacity;
-        // Берём нечётное число для лучшей взаимной простоты при двойном хешировании
         m_capacity = m_capacity * 2 + 1;
 
         structures::DynamicArray<Entry> old_table = m_table;
@@ -81,7 +80,7 @@ public:
     size_t capacity() const { return m_capacity; }
     bool empty() const { return m_size == 0; }
 
-    // Вставка ключа и значения. Возвращает количество сделанных проб (для анализа коллизий)
+    // Вставка ключа и значения. Возвращает количество сделанных проб
     size_t insert(const std::string& key, const V& value) {
         // Поддержание коэффициента загрузки <= 0.7
         if (m_size + 1 > m_capacity * 0.7) {

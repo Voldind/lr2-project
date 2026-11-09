@@ -33,7 +33,7 @@ private:
         int current_val = nums[idx];
 
         for (size_t i = 0; i < subsets.size(); ++i) {
-            // Проверяем, помещается ли число в i-ю корзину
+            // Проверка, помещается ли число в i-ю корзину
             if (subset_sums[i] + current_val <= target_sum) {
                 subsets[i].push_back(current_val);
                 subset_sums[i] += current_val;

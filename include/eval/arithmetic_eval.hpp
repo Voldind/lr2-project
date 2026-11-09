@@ -10,7 +10,7 @@ namespace eval {
 inline int get_precedence(char op) {
     if (op == '+' || op == '-') return 1;
     if (op == '*') return 2;
-    return 0; // для скобок '('
+    return 0;
 }
 
 // Применение бинарной операции к двум числам
@@ -44,17 +44,17 @@ inline long long evaluate_expression(const std::string& expr) {
     for (size_t i = 0; i < expr.length(); ++i) {
         char ch = expr[i];
 
-        // 1. Пропускаем пробелы
+        // Пропуск пробелов
         if (std::isspace(static_cast<unsigned char>(ch))) {
             continue;
         }
 
-        // 2. Обработка открывающей скобки
+        // Обработка открывающей скобки
         if (ch == '(') {
             ops.push(ch);
             may_be_unary = true;
         }
-        // 3. Обработка закрывающей скобки
+        // Обработка закрывающей скобки
         else if (ch == ')') {
             bool found_open_paren = false;
             while (!ops.empty()) {
@@ -70,7 +70,7 @@ inline long long evaluate_expression(const std::string& expr) {
             }
             may_be_unary = false;
         }
-        // 4. Считывание числа (включая унарный плюс/минус перед числом)
+        // 4. Считывание числа
         else if (std::isdigit(static_cast<unsigned char>(ch)) || (may_be_unary && (ch == '+' || ch == '-'))) {
             long long sign = 1;
             if (ch == '-') {
@@ -116,7 +116,7 @@ inline long long evaluate_expression(const std::string& expr) {
         }
     }
 
-    // Довычисляем все оставшиеся в стеке операции
+    // Довычисляем все оставшиеся операции
     while (!ops.empty()) {
         if (ops.top() == '(') {
             throw std::runtime_error("Mismatched parentheses: unclosed '('");

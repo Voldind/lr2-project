@@ -55,7 +55,7 @@ public:
     size_t size() const { return m_size; }
     bool empty() const { return m_size == 0; }
 
-    // SETADD: добавление элемента в множество (O(1) аморт.)
+    // SETADD: добавление элемента в множество
     bool add(const std::string& value) {
         if (contains(value)) {
             return false;
@@ -69,7 +69,7 @@ public:
         return true;
     }
 
-    // SETDEL: удаление элемента из множества (O(1) в среднем)
+    // SETDEL: удаление элемента из множества
     bool remove(const std::string& value) {
         size_t idx = hash(value);
         if (m_buckets[idx].find(value) != -1) {
@@ -80,7 +80,7 @@ public:
         return false;
     }
 
-    // SET_AT: проверка наличия элемента в множестве (O(1) в среднем)
+    // SET_AT: проверка наличия элемента в множестве
     bool contains(const std::string& value) const {
         size_t idx = hash(value);
         return m_buckets[idx].find(value) != -1;

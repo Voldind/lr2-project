@@ -6,13 +6,12 @@ namespace algos {
 
 class SubarrayGenerator {
 public:
-    // Генерация всех подмножеств (Powerset) для массива произвольного типа
+    // Генерация всех подмножеств для массива произвольного типа
     template <typename T>
     static structures::DynamicArray<structures::DynamicArray<T>> generate_subsets(const structures::DynamicArray<T>& arr) {
         structures::DynamicArray<structures::DynamicArray<T>> result;
         size_t n = arr.size();
         
-        // Всего 2^n комбинаций (1ULL << n)
         unsigned long long total_subsets = 1ULL << n;
 
         for (unsigned long long mask = 0; mask < total_subsets; ++mask) {

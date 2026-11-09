@@ -16,7 +16,6 @@ public:
             return result;
         }
 
-        // Используем нашу кастомную очередь из ЛР1
         structures::Queue<typename structures::BinarySearchTree<T>::Node*> q;
         q.push(tree.get_root());
 
@@ -31,7 +30,6 @@ public:
                     result.push_back(curr->data);
                 }
 
-                // Добавляем детей в очередь: сначала левого, затем правого
                 if (curr->left != nullptr) {
                     q.push(curr->left);
                 }

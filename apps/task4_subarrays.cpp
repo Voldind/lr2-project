@@ -29,7 +29,7 @@ int main() {
     structures::DynamicArray<structures::DynamicArray<std::string>> all_subsets = 
         algos::SubarrayGenerator::generate_subsets(arr);
 
-    // Форматированный вывод по образцу из методички
+    // Вывод
     std::cout << "\nВсего подмножеств: " << all_subsets.size() << "\nВывод: [";
     for (size_t i = 0; i < all_subsets.size(); ++i) {
         std::cout << "{";
