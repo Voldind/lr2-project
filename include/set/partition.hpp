@@ -20,14 +20,14 @@ private:
         }
     }
 
-    // Рекурсивный перебор (backtracking)
+    // Рекурсивный перебор
     static bool backtrack(size_t idx, 
                           const structures::DynamicArray<int>& nums, 
                           structures::DynamicArray<structures::DynamicArray<int>>& subsets,
                           structures::DynamicArray<int>& subset_sums, 
                           int target_sum) {
         if (idx == nums.size()) {
-            return true; // все числа успешно распределены
+            return true;
         }
 
         int current_val = nums[idx];
@@ -47,8 +47,8 @@ private:
                 subset_sums[i] -= current_val;
             }
 
-            // Оптимизация: если корзина была пустой и число в неё не подошло,
-            // другие пустые корзины проверять бессмысленно (они идентичны)
+            // Если корзина была пустой и число не подошло,
+            // корзины пропускаются
             if (subset_sums[i] == 0) {
                 break;
             }
